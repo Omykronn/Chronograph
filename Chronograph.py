@@ -19,8 +19,10 @@ speed_y = equY.derive()  # Equation of the Y-Speed Value
 acc_x = speed_x.derive()  # Equation of the X-Acceleration Value
 acc_y = speed_y.derive()  # Equation of the Y-Acceleration Value
 
-pos_x = eval("[{equ} for {var} in range({max})]".format(equ=equX, var=var, max=nb))  # Calculate the X Position
-pos_y = eval("[{equ} for {var} in range({max})]".format(equ=equY, var=var, max=nb))  # Calculate the Y Position
+range_t = [i / 10 for i in range(nb * 10)]
+
+pos_x = eval("[{equ} for {var} in {range}]".format(equ=equX, var=var, range=range_t))  # Calculate the X Position
+pos_y = eval("[{equ} for {var} in {range}]".format(equ=equY, var=var, range=range_t))  # Calculate the Y Position
 
 # Calculate the Speed Vector's Coordinates
 speed_vector = eval("[({x}, {y}) for {var} in range({max})]".format(x=speed_x, y=speed_y, var=var, max=nb))
@@ -32,23 +34,25 @@ acc_vector = eval("[({x}, {y}) for {var} in range({max})]".format(x=acc_x, y=acc
 output_file("Mechanic_Movement.html", title="Chromatograph")
 
 # Creation of the Canvas
-f = figure(sizing_mode="stretch_both", x_axis_label="Abscissa", y_axis_label="Ordinate",
+f = figure(sizing_mode="stretch_both", x_axis_label="x(t) = " + equX.format(), y_axis_label="y(t) = " + equY.format(),
            tools="box_zoom,wheel_zoom,reset,save")
 
-f.circle(pos_x, pos_y, size=10, color=pos_color, name="pos")  # Draw each Point of the Movement
+# Draw each Point of the Movement
+f.line(pos_x, pos_y, width=2, color=pos_color, name="pos")
+f.circle([pos_x[10*i] for i in range(nb)], [pos_y[10*i] for i in range(nb)], size=10, color=pos_color, name="pos")
 
 # Drawing of each Speed and Acceleration Vectors
 for i in range(nb):
     f.add_layout(Arrow(end=VeeHead(size=10, line_color=speed_color, fill_color=speed_color), line_color=speed_color,
-                       line_width=2, x_start=pos_x[i], y_start=pos_y[i], x_end=pos_x[i] + speed_vector[i][0],
-                       y_end=pos_y[i] + speed_vector[i][1])) # Draw the Speed Vector at Point i+1
+                       line_width=2, x_start=pos_x[10*i], y_start=pos_y[10*i], x_end=pos_x[10*i] + speed_vector[i][0],
+                       y_end=pos_y[10*i] + speed_vector[i][1]))  # Draw the Speed Vector at Point i+1
 
     f.add_layout(Arrow(end=VeeHead(size=10, line_color=acc_color, fill_color=acc_color), line_color=acc_color,
-                       line_width=2, x_start=pos_x[i], y_start=pos_y[i], x_end=pos_x[i] + acc_vector[i][0],
-                       y_end=pos_y[i] + acc_vector[i][1]))  # Draw the Acceleration Vector at Point i+1
+                       line_width=2, x_start=pos_x[10*i], y_start=pos_y[10*i], x_end=pos_x[10*i] + acc_vector[i][0],
+                       y_end=pos_y[10*i] + acc_vector[i][1]))  # Draw the Acceleration Vector at Point i+1
 
 # Creating the Legend
-f.add_layout(Legend(items=[LegendItem(label="M(t) [Position]", renderers=f.select(name="pos")),
+f.add_layout(Legend(items=[LegendItem(label="Trajectory", renderers=f.select(name="pos")),
                            LegendItem(label="Speed Vector (m/s)", renderers=[f.line(color=speed_color, line_width=2)]),
                            LegendItem(label="Acceleration Vector (m/s²)", renderers=[f.line(color=acc_color, line_width=2)])]))
 

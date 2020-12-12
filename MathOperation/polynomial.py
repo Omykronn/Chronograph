@@ -41,3 +41,13 @@ class Polynomial:
 
     def derive(self):
         return Polynomial([n.derive() for n in self.terms], self.variable)
+
+    def format(self):
+        carac = [("**3+", "³+"), ("**2+", "²+"), ("**1", ""), ("*" + self.variable + "**0", ""), ("**", "^"), ("*", "×")
+                 , ("+-", "-")]
+        s = str(self)
+
+        for c in carac:
+            s = s.replace(c[0], c[1])
+
+        return s
